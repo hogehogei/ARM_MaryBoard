@@ -4,7 +4,6 @@
 #include "uart.h"
 #include "ledarray.h"
 #include "systick.h"
-#include "oled.h"
 
 /* Section boundaries defined in linker script */
 extern long _data[], _etext[], _edata[], _bss[], _ebss[];//, _endof_sram[];
@@ -41,7 +40,7 @@ static int sLEDArrayColorIdx = 0;
 
 // LEDArray表示用ルーチン
 // 1列ずつしか点灯できないので、タイマ割り込みで呼び出してダイナミック点灯させる
-void drawLEDArray(void)
+void PrintLEDArray(void)
 {
 	static uint8_t ledary_row = 0x80;
 	static uint8_t ledary_col = 0;
@@ -112,7 +111,7 @@ int ResetISR (void)
 	// 32bitタイマーの初期化
 	Init_Timer32B1( 2000 );  // 2ms毎にコールバック呼び出し
 	UART_Print( "Init_Timer32B1()" );
-	Timer32B1_SetCallback( drawLEDArray );
+	Timer32B1_SetCallback( PrintLEDArray );
 	// LEDarray の初期化
 	Init_LEDArray();
 	UART_Print( "Init_LEDArray()" );
