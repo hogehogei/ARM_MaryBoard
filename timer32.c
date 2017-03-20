@@ -45,8 +45,8 @@ void CT32B1_IRQHandler(void)
 {
 	if( TMR32B1IR & 0x01 ){
 		if( gTimer32B1_Callback ){
-				(*gTimer32B1_Callback)();
-			}
+			(*gTimer32B1_Callback)();
+		}
 		TMR32B1IR = (1 << 0);
 	}
 }

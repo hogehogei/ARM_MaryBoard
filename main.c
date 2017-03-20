@@ -123,6 +123,8 @@ int ResetISR (void)
 	TurnOnLED( skLEDColorTbl[led_idx] );
 
 	// main loop
+	uint8_t rx[64+1];    // +1 は最後のNULL用
+	int rxcnt = 0;
 	while(1){
 		Systick_Wait( 1000 );
 		if( ++sLEDArrayDrawIdx == 11 ){
@@ -132,7 +134,18 @@ int ResetISR (void)
 			}
 		}
 
-		UART_Print( "Hello, world!" );
+		while( UART_IsPresentRecvData() && rxcnt < 64 ){
+			rxcnt += UART_Recv( rx, 64 - rxcnt );
+		}
+		rx[rxcnt] = '\0';
+
+		if( rxcnt > 0 ){
+			UART_Print( "echo back" );
+			UART_Print( (const char*)rx );
+			rxcnt = 0;
+		}
+
+
 		TurnOffLED( skLEDColorTbl[led_idx] );
 		led_idx = (led_idx + 1) % (sizeof(skLEDColorTbl) / 4);
 		TurnOnLED( skLEDColorTbl[led_idx] );

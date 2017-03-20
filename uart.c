@@ -3,7 +3,7 @@
 #include "LPC1100.h"
 #include "led.h"
 
-#define UART_BUFSIZE (32)
+#define UART_BUFSIZE (128)
 #define UART_RECV_FIFO_EMPTY (0)
 #define UART_RECV_OK (1)
 #define UART_RECV_BUFFULL (2)
@@ -78,7 +78,6 @@ static int UART_RecvByte(void)
 		result = UART_RECV_OK;
 	}
 	else {
-		//TurnOnLED( LED_COLOR_RED );
 		//　読み取りバッファが一杯
 		result = UART_RECV_BUFFULL;
 	}
@@ -88,8 +87,17 @@ static int UART_RecvByte(void)
 
 static void UART_MoveRxFIFODataToRxBuf(void)
 {
+	int result;
+	uint8_t temp;
+
 	// Rx FIFOバッファにあるデータを全部読む
-	while( UART_RecvByte() != UART_RECV_FIFO_EMPTY ) ;
+	while( (result = UART_RecvByte()) != UART_RECV_FIFO_EMPTY ) {
+		// 読み取りバッファいっぱいならしょうがないので読み捨てる
+		if( result == UART_RECV_BUFFULL ){
+			temp = U0RBR;
+			break;
+		}
+	}
 }
 
 static int UART_SendByte(void)
