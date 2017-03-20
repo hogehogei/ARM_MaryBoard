@@ -70,10 +70,10 @@ static int UART_RecvByte(void)
 
 	int result = 0;
 	if( (gUART_RxBufIdx + 1) % UART_BUFSIZE != gUART_RxBufBegin ){
-		__disable_irq();
+		__disable_irqn(UART_IRQn);
 		gUART_RxBuffer[gUART_RxBufIdx] = U0RBR;
 		gUART_RxBufIdx = (gUART_RxBufIdx + 1) % UART_BUFSIZE;
-		__enable_irq();
+		__enable_irqn(UART_IRQn);
 
 		result = UART_RECV_OK;
 	}
@@ -107,10 +107,10 @@ static int UART_SendByte(void)
 	}
 
 	while( !(U0LSR & (1 << 5)) ) ;
-	__disable_irq();
+	__disable_irqn(UART_IRQn);
 	U0THR = gUART_TxBuffer[gUART_TxBufBegin];
 	gUART_TxBufBegin = (gUART_TxBufBegin + 1) % UART_BUFSIZE;
-	__enable_irq();
+	__enable_irqn(UART_IRQn);
 
 	return 1;
 }
@@ -122,10 +122,10 @@ int UART_Recv( uint8_t* rx, uint32_t len )
 
 	int rxcnt = 0;
 	while( rxcnt < len && gUART_RxBufBegin != gUART_RxBufIdx ){
-		__disable_irq();
+		__disable_irqn(UART_IRQn);
 		rx[rxcnt] = gUART_RxBuffer[gUART_RxBufBegin];
 		gUART_RxBufBegin = (gUART_RxBufBegin + 1) % UART_BUFSIZE;
-		__enable_irq();
+		__enable_irqn(UART_IRQn);
 
 		++rxcnt;
 	}
@@ -145,10 +145,10 @@ int UART_Send( const uint8_t* tx, uint32_t len )
 			//}
 		}
 
-		__disable_irq();
+		__disable_irqn(UART_IRQn);
 		gUART_TxBuffer[gUART_TxBufIdx] = tx[i];
 		gUART_TxBufIdx = (gUART_TxBufIdx + 1) % UART_BUFSIZE;
-		__enable_irq();
+		__enable_irqn(UART_IRQn);
 
 		// Transmitter（U0THRとU0TSR)が空ならとりあえず1バイト送っておく
 		// 何かバイトを送って、割り込みを発生させるため
@@ -162,14 +162,14 @@ int UART_Send( const uint8_t* tx, uint32_t len )
 
 void UART_ClearRecvBuffer(void)
 {
-	__disable_irq();
+	__disable_irqn(UART_IRQn);
 	gUART_RxBufIdx = 0;
 	gUART_RxBufBegin = 0;
 	volatile uint8_t d;
 	while( U0LSR & 0x01 ){
 		d = U0RBR;
 	}
-	__enable_irq();
+	__enable_irqn(UART_IRQn);
 }
 
 int UART_IsPresentRecvData(void)
