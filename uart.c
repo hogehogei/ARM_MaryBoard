@@ -47,9 +47,13 @@ int Init_UART(void)
 	// Enable THRE interrupt
 	U0IER = 0x07;
 	// Rx/Tx FIFO Enable
-	U0FCR |= 0x81;
-	// 割り込み発生 Rx trigger level2 に設定(8 characters)
-	U0FCR |= (2 << 6);
+	// Rx/TX FIFO Reset
+	U0FCR = 0x01;
+	U0FCR = 0x06;
+	// 割り込み発生 Rx trigger level 0に設定(1 characterでもFIFOにたまったら取り出す）
+	U0FCR |= (0 << 6);
+
+	// UARTを有効にする
 	U0TER = 0x80;
 
 	__enable_irqn( UART_IRQn );
