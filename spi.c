@@ -7,7 +7,7 @@ int Init_SPI0( uint8_t bitlen )
 	// 1回でやり取りするデータ長
 	// 3bit から 16bit まで設定可能
 	if( bitlen < 3 || bitlen > 16 ){
-		return 0;
+		return 0;  
 	}
 
 	// SPI0へのクロック供給を有効
@@ -16,9 +16,10 @@ int Init_SPI0( uint8_t bitlen )
 	// SCK0 を PIO0_6  に割り当て
 	IOCON_SCK0_LOC = 0x2;
 	// SPI0のピン設定
-	IOCON_PIO0_6 = 0xd2;    // SCK0
-	IOCON_PIO0_8 = 0xd1;    // MISO0
-	IOCON_PIO0_9 = 0xd1;    // MOSI0
+	IOCON_PIO0_6 = 0x02;    // SCK0
+	IOCON_PIO0_8 = 0x11;    // MISO0 / pullup
+	IOCON_PIO0_9 = 0x01;    // MOSI0
+	IOCON_PIO0_2 = 0x01;    // SSEL0
 
 	// SPI0をリセット
 	PRESETCTRL |= 0x01;
